@@ -131,7 +131,7 @@ export default function Network() {
                     <img
                       src={
                         user.profilePic
-                          ? `http://localhost:5000${user.profilePic}`
+                          ? `https://medlinkbackend-ipoc.onrender.com/${user.profilePic}`
                           : `https://ui-avatars.com/api/?name=${user.name}`
                       }
                       alt={user.name}
