@@ -34,7 +34,7 @@ const posts = [
     time: "5h ago",
     text: "Exploring precision and accuracy with robotic-assisted neurosurgery 🤖🧠. Technology continues to redefine how we approach brain tumor resections. Here’s a short clip from today’s case simulation.",
     media: [
-      "https://videos.pexels.com/video-files/6010248/6010248-hd_1920_1080_25fps.mp4",
+      "https://www.youtube.com/watch?v=m6Qp2Rr6IR4",
     ],
   },
   {
@@ -54,7 +54,7 @@ const posts = [
     time: "8h ago",
     text: "Incredible before-after results using the new diode laser for acne scar reduction ✨. Each case takes patience, science, and consistency — and the results are truly rewarding! 💆‍♀️",
     media: [
-      "https://videos.pexels.com/video-files/3184394/3184394-uhd_2560_1440_25fps.mp4",
+      "https://www.youtube.com/watch?v=m6Qp2Rr6IR4",
       "https://images.pexels.com/photos/3762881/pexels-photo-3762881.jpeg",
     ],
   },
