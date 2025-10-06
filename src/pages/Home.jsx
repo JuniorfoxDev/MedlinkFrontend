@@ -1,223 +1,259 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
-import FeatureCard from "../components/Featured";
-import {
-  Stethoscope,
-  BriefcaseMedical,
-  Shield,
-  Users,
-  HeartPulse,
-} from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import { useInView } from "react-intersection-observer";
+import { TypeAnimation } from "react-type-animation";
 
-// Animation variants for scroll-trigger fade-ups
 const fadeUp = {
-  hidden: { opacity: 0, y: 50 },
-  visible: (i = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.2, duration: 0.7, ease: "easeOut" },
-  }),
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
 };
 
+// ✅ Testimonials Data
+const testimonials = [
+  {
+    name: "Dr. Priya Deshmukh",
+    role: "Neurosurgeon | Fortis Mumbai",
+    text: "MediLink has connected me with specialists I never thought I’d meet — it’s like LinkedIn for the medical world!",
+    img: "https://randomuser.me/api/portraits/women/68.jpg",
+  },
+  {
+    name: "Dr. Rahul Sharma",
+    role: "Cardiologist | AIIMS Delhi",
+    text: "The verified doctor feature builds real trust. I’ve collaborated on research projects through this platform.",
+    img: "https://randomuser.me/api/portraits/men/45.jpg",
+  },
+  {
+    name: "Aditi Sharma",
+    role: "MBBS Intern | PGIMER Chandigarh",
+    text: "As a student, MediLink helped me get mentorship and early exposure to medical research and discussions.",
+    img: "https://randomuser.me/api/portraits/women/32.jpg",
+  },
+];
+
 const Home = () => {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <div
-      className="min-h-screen flex flex-col bg-gradient-to-br from-[#e0f2fe] via-[#ffffff] to-[#dbeafe] text-gray-800"
+      className="min-h-screen flex flex-col bg-[#f7faff]"
       style={{ fontFamily: "Manrope, Noto Sans, sans-serif" }}
     >
-      <Navbar />
+      {/* ✅ Floating Navbar */}
+      <nav
+        className={`fixed top-0 left-0 z-50 w-full transition-all duration-500 ${
+          scrolled
+            ? "bg-white/70 backdrop-blur-xl shadow-lg py-3"
+            : "bg-transparent py-5"
+        }`}
+      >
+        <Navbar />
+      </nav>
 
-      {/* ================= HERO SECTION ================= */}
-      <section className="relative overflow-hidden flex flex-col items-center justify-center text-center py-28 px-6 md:px-12">
-        {/* Background Layers */}
+      {/* ✅ Hero Section with Parallax */}
+      <section className="relative h-[90vh] flex flex-col justify-center items-center text-center overflow-hidden">
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.8 }}
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1600959907703-125ba1374a12?auto=format&fit=crop&w=1920&q=80')",
+          }}
+          initial={{ scale: 1.2, opacity: 0.4 }}
+          animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 1.5 }}
-          className="absolute inset-0 bg-[url('https://images.pexels.com/photos/8460153/pexels-photo-8460153.jpeg')] bg-cover bg-center brightness-75"
-        />
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2 }}
-          className="relative z-10 backdrop-blur-xl bg-white/10 rounded-3xl shadow-2xl border border-white/20 p-10 max-w-4xl mx-auto"
-        >
-          <motion.h1
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            className="text-white text-4xl md:text-6xl font-extrabold drop-shadow-lg leading-tight"
-          >
-            Connect. Collaborate. Cure.
-          </motion.h1>
-          <motion.p
-            variants={fadeUp}
-            custom={1}
-            initial="hidden"
-            animate="visible"
-            className="text-white/90 mt-4 text-lg md:text-xl max-w-2xl mx-auto"
-          >
-            Join a verified community of doctors, students, and healthcare
-            professionals. Share cases, discuss breakthroughs, and grow together.
-          </motion.p>
+        ></motion.div>
+        <div className="absolute inset-0 bg-black/50"></div>
 
-          <motion.button
-            variants={fadeUp}
-            custom={2}
-            initial="hidden"
-            animate="visible"
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
-            className="mt-8 px-8 py-3 text-lg font-semibold rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg hover:shadow-2xl transition"
-          >
-            Get Started
-          </motion.button>
-        </motion.div>
-
-        {/* Floating lights */}
-        <motion.div
-          className="absolute -top-10 -right-10 w-60 h-60 bg-blue-400/30 blur-[120px] rounded-full"
-          animate={{ y: [0, 20, 0], opacity: [0.5, 0.8, 0.5] }}
-          transition={{ duration: 6, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute bottom-0 left-0 w-72 h-72 bg-indigo-400/20 blur-[140px] rounded-full"
-          animate={{ y: [0, -20, 0], opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 8, repeat: Infinity }}
-        />
-      </section>
-
-      {/* ================= FEATURES SECTION ================= */}
-      <section className="max-w-6xl mx-auto px-6 md:px-10 py-20">
-        <motion.h2
+        <motion.h1
           variants={fadeUp}
           initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="text-4xl font-extrabold text-center text-gray-800 mb-4"
+          animate="visible"
+          className="text-4xl md:text-6xl font-black text-white z-10"
         >
-          Empowering the Medical Community
-        </motion.h2>
+          Connect. Collaborate.{" "}
+          <TypeAnimation
+            sequence={["Cure.", 2000, "Inspire.", 2000, "Grow.", 2000]}
+            wrapper="span"
+            speed={40}
+            className="text-blue-400"
+            repeat={Infinity}
+          />
+        </motion.h1>
+
         <motion.p
           variants={fadeUp}
-          custom={1}
           initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="text-center text-gray-600 mb-14 max-w-2xl mx-auto"
+          animate="visible"
+          transition={{ delay: 0.3 }}
+          className="text-gray-200 max-w-2xl mt-5 z-10"
         >
-          Discover tools designed to help medical professionals and students
-          connect, learn, and thrive in a trusted ecosystem.
+          Join a verified network of medical professionals, students, and
+          healthcare experts. Share ideas. Advance medicine.
         </motion.p>
 
-        <motion.div
-          variants={fadeUp}
-          custom={2}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4"
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          onClick={() =>
+            document.getElementById("features").scrollIntoView({
+              behavior: "smooth",
+            })
+          }
+          className="mt-8 px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold shadow-lg hover:bg-blue-700 z-10"
         >
-          <FeatureCard
-            icon={<Stethoscope className="text-blue-600" size={28} />}
-            title="Secure Messaging"
-            description="Chat privately with doctors and students across verified networks."
-          />
-          <FeatureCard
-            icon={<BriefcaseMedical className="text-indigo-600" size={28} />}
-            title="Case Sharing"
-            description="Post, discuss, and review complex medical cases collaboratively."
-          />
-          <FeatureCard
-            icon={<Shield className="text-green-600" size={28} />}
-            title="Verified Identity"
-            description="Every member is identity-verified, ensuring trust and authenticity."
-          />
-          <FeatureCard
-            icon={<Users className="text-purple-600" size={28} />}
-            title="Career & Research"
-            description="Discover opportunities, internships, and research collaborations."
-          />
+          Get Started
+        </motion.button>
+
+        <motion.div
+          animate={{ y: [0, 10, 0] }}
+          transition={{ repeat: Infinity, duration: 2 }}
+          className="absolute bottom-10 text-white/70"
+        >
+          <ChevronDown size={30} />
         </motion.div>
       </section>
 
-      {/* ================= STATS SECTION ================= */}
-      <section className="bg-white/60 backdrop-blur-lg border-t border-gray-100 py-16">
-        <motion.div
-          className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center"
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-        >
-          {[
-            { label: "Verified Doctors", value: "15K+" },
-            { label: "Medical Students", value: "25K+" },
-            { label: "Institutions", value: "500+" },
-            { label: "Active Discussions", value: "3K+" },
-          ].map((stat, i) => (
+      {/* ✅ Features Section */}
+      <Section id="features" title="Features" subtitle="Empowering medical collaboration.">
+        <div className="grid md:grid-cols-3 gap-8">
+          <FeatureCard
+            title="Secure Messaging"
+            desc="Communicate privately and securely with verified peers and mentors."
+            icon="💬"
+          />
+          <FeatureCard
+            title="Case Discussions"
+            desc="Share and analyze complex medical cases with top specialists."
+            icon="🩺"
+          />
+          <FeatureCard
+            title="Verified Profiles"
+            desc="All professionals are verified — ensuring real, trusted connections."
+            icon="✅"
+          />
+        </div>
+      </Section>
+
+      {/* ✅ Timeline Section */}
+      <Section title="How It Works" subtitle="Simple steps to join the MediLink ecosystem.">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-10 mt-10">
+          <TimelineStep
+            number="1"
+            title="Register & Verify"
+            desc="Sign up and upload your valid ID for instant verification."
+          />
+          <TimelineStep
+            number="2"
+            title="Connect & Collaborate"
+            desc="Find doctors, students, and healthcare institutions matching your field."
+          />
+          <TimelineStep
+            number="3"
+            title="Share & Grow"
+            desc="Post cases, share research, and grow with a verified community."
+          />
+        </div>
+      </Section>
+
+      {/* ✅ Testimonials Section */}
+      <Section title="What Professionals Say">
+        <div className="grid md:grid-cols-3 gap-6 mt-10">
+          {testimonials.map((t, i) => (
             <motion.div
               key={i}
-              custom={i}
-              variants={fadeUp}
-              className="p-6 bg-white/70 rounded-2xl shadow-md hover:shadow-lg transition"
+              whileHover={{ scale: 1.03 }}
+              className="p-6 rounded-2xl bg-white/60 backdrop-blur-md border border-white/40 shadow-lg"
             >
-              <p className="text-3xl font-extrabold text-blue-600">
-                {stat.value}
-              </p>
-              <p className="text-gray-600 text-sm mt-1">{stat.label}</p>
+              <div className="flex items-center gap-3 mb-4">
+                <img
+                  src={t.img}
+                  alt={t.name}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <div>
+                  <h4 className="font-bold text-gray-800">{t.name}</h4>
+                  <p className="text-sm text-gray-500">{t.role}</p>
+                </div>
+              </div>
+              <p className="text-gray-700 italic">“{t.text}”</p>
             </motion.div>
           ))}
-        </motion.div>
-      </section>
+        </div>
+      </Section>
 
-      {/* ================= CTA SECTION ================= */}
-      <section className="relative text-center py-24 bg-gradient-to-br from-blue-50 via-white to-indigo-50 overflow-hidden">
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="max-w-3xl mx-auto backdrop-blur-lg bg-white/70 border border-white/40 rounded-3xl p-10 shadow-xl relative z-10"
+      {/* ✅ Call to Action */}
+      <motion.section
+        className="relative py-24 text-center text-white overflow-hidden bg-gradient-to-r from-blue-700 to-indigo-600"
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1580281657525-1c1b6d4f5200?auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center opacity-30"></div>
+        <h2 className="text-4xl font-bold relative z-10 mb-4">
+          Ready to Elevate Your Medical Career?
+        </h2>
+        <p className="text-white/90 mb-8 relative z-10">
+          Join MediLink today — where verified doctors, students, and experts
+          collaborate.
+        </p>
+        <motion.button
+          whileHover={{ scale: 1.08 }}
+          className="px-8 py-3 bg-white text-blue-700 font-semibold rounded-xl shadow-md relative z-10"
         >
-          <HeartPulse className="mx-auto text-blue-600 mb-3" size={36} />
-          <h2 className="text-4xl font-extrabold text-[#0d141c] mb-4">
-            Ready to elevate your medical career?
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Join MedLink today — the trusted platform for verified medical
-            professionals and students.
-          </p>
-          <motion.button
-            whileHover={{ scale: 1.07 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-8 py-3 rounded-xl font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg hover:shadow-xl transition"
-          >
-            Join Now
-          </motion.button>
-        </motion.div>
-
-        {/* Animated Gradient Blobs */}
-        <motion.div
-          className="absolute top-10 right-10 w-72 h-72 bg-blue-400/20 blur-[100px] rounded-full"
-          animate={{ opacity: [0.3, 0.7, 0.3], scale: [1, 1.1, 1] }}
-          transition={{ duration: 6, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute bottom-10 left-10 w-80 h-80 bg-indigo-400/20 blur-[100px] rounded-full"
-          animate={{ opacity: [0.3, 0.7, 0.3], scale: [1.1, 1, 1.1] }}
-          transition={{ duration: 8, repeat: Infinity }}
-        />
-      </section>
-
-      {/* ================= FOOTER ================= */}
-      <footer className="py-10 text-center text-gray-500 text-sm border-t border-gray-100">
-        © {new Date().getFullYear()} MedLink. Built with ❤️ for healthcare
-        professionals.
-      </footer>
+          Join Now
+        </motion.button>
+      </motion.section>
     </div>
   );
 };
+
+// ✅ Section Wrapper Component
+const Section = ({ id, title, subtitle, children }) => {
+  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.15 });
+  return (
+    <motion.section
+      id={id}
+      ref={ref}
+      className="max-w-6xl mx-auto px-6 py-20 text-center"
+      variants={fadeUp}
+      initial="hidden"
+      animate={inView ? "visible" : "hidden"}
+    >
+      <h2 className="text-3xl font-bold text-gray-800 mb-3">{title}</h2>
+      {subtitle && <p className="text-gray-600 mb-10">{subtitle}</p>}
+      {children}
+    </motion.section>
+  );
+};
+
+// ✅ Feature Card
+const FeatureCard = ({ title, desc, icon }) => (
+  <motion.div
+    whileHover={{ scale: 1.05 }}
+    className="p-8 rounded-2xl bg-white/60 backdrop-blur-md border border-white/30 shadow-lg"
+  >
+    <div className="text-4xl mb-4">{icon}</div>
+    <h3 className="text-lg font-semibold mb-2 text-gray-800">{title}</h3>
+    <p className="text-gray-600 text-sm">{desc}</p>
+  </motion.div>
+);
+
+// ✅ Timeline Step
+const TimelineStep = ({ number, title, desc }) => (
+  <motion.div
+    whileHover={{ scale: 1.05 }}
+    className="flex flex-col items-center text-center max-w-xs"
+  >
+    <div className="text-5xl font-bold text-blue-600 mb-3">{number}</div>
+    <h4 className="text-xl font-semibold text-gray-800 mb-2">{title}</h4>
+    <p className="text-gray-600 text-sm">{desc}</p>
+  </motion.div>
+);
 
 export default Home;
