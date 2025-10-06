@@ -10,43 +10,33 @@ import {
   Smile,
 } from "lucide-react";
 import EmojiPicker from "emoji-picker-react";
-
-/**
- * CreatePost.jsx
- * - fixed UI bugs:
- *   - properly declared refs
- *   - revokeObjectURL to prevent memory leaks
- *   - emoji picker anchored inside relative container
- *   - keyboard shortcut handled on textarea
- *   - drag/drop prevents default & propagation
- *   - responsive preview grid
- */
+import toast, { Toaster } from "react-hot-toast";
+import api from "../api/axiosInstance"; // ✅ your axios instance with baseURL set
 
 export default function CreatePost() {
   const [text, setText] = useState("");
-  const [media, setMedia] = useState([]); // { url, type, name }
+  const [media, setMedia] = useState([]); // { url, type, name, file }
   const [showEmoji, setShowEmoji] = useState(false);
   const [postSuccess, setPostSuccess] = useState(false);
   const [compact, setCompact] = useState(false);
 
   const fileInputRef = useRef(null);
   const videoInputRef = useRef(null);
-  const pickerRef = useRef(null); // anchor container
+  const pickerRef = useRef(null);
   const mountedRef = useRef(true);
 
-  // Compact Mode on Scroll
+  // ✅ Compact Mode on Scroll
   useEffect(() => {
     const handleScroll = () => setCompact(window.scrollY > 100);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // track mount for cleanup
+  // ✅ Cleanup URLs when unmount
   useEffect(() => {
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
-      // revoke created object URLs on unmount
       media.forEach((m) => {
         try {
           URL.revokeObjectURL(m.url);
@@ -55,7 +45,7 @@ export default function CreatePost() {
     };
   }, []); // eslint-disable-line
 
-  // create previews and store file name & type
+  // ✅ Create previews and store file references
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
@@ -64,15 +54,14 @@ export default function CreatePost() {
       url: URL.createObjectURL(file),
       type: file.type.includes("video") ? "video" : "image",
       name: file.name,
+      file, // keep the original file for upload
     }));
 
     setMedia((prev) => [...prev, ...previews]);
-
-    // reset input value so same file re-upload works if needed
-    e.target.value = "";
+    e.target.value = ""; // reset input
   };
 
-  // remove single preview and revoke URL
+  // ✅ Remove a single media file
   const removeMediaAt = (index) => {
     setMedia((prev) => {
       const item = prev[index];
@@ -85,14 +74,47 @@ export default function CreatePost() {
     });
   };
 
-  // emoji handler
+  // ✅ Emoji Handler
   const onEmojiClick = (emojiData) => {
-    // emoji-picker-react passes object with `emoji`
     const emoji = emojiData?.emoji ?? "";
     setText((prev) => prev + emoji);
   };
 
-  // handle ctrl + enter post (textarea keydown)
+  // ✅ Post submission handler
+  const handlePost = async () => {
+    if (!text.trim() && media.length === 0)
+      return toast.error("⚠️ Post cannot be empty!");
+
+    try {
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("text", text);
+      media.forEach((m) => formData.append("media", m.file));
+
+      await api.post("/posts", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setPostSuccess(true);
+      toast.success("✅ Post created successfully!");
+
+      // reset after short delay
+      setTimeout(() => {
+        if (!mountedRef.current) return;
+        setText("");
+        setMedia([]);
+        setPostSuccess(false);
+      }, 1200);
+    } catch (err) {
+      console.error("❌ Post Error:", err);
+      toast.error("Failed to create post. Try again.");
+    }
+  };
+
+  // ✅ Ctrl + Enter shortcut
   const handleTextKeyDown = (e) => {
     if (e.ctrlKey && (e.key === "Enter" || e.key === "NumpadEnter")) {
       e.preventDefault();
@@ -100,28 +122,7 @@ export default function CreatePost() {
     }
   };
 
-  // post logic (placeholder)
-  const handlePost = () => {
-    if (!text.trim() && media.length === 0) return;
-
-    setPostSuccess(true);
-
-    // fake delay to show animation (replace with actual API call)
-    setTimeout(() => {
-      if (!mountedRef.current) return;
-      // cleanup previews and reset
-      media.forEach((m) => {
-        try {
-          URL.revokeObjectURL(m.url);
-        } catch (e) {}
-      });
-      setText("");
-      setMedia([]);
-      setPostSuccess(false);
-    }, 1200);
-  };
-
-  // drag & drop
+  // ✅ Drag & Drop upload
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -132,6 +133,7 @@ export default function CreatePost() {
       url: URL.createObjectURL(file),
       type: file.type.includes("video") ? "video" : "image",
       name: file.name,
+      file,
     }));
     setMedia((prev) => [...prev, ...previews]);
   };
@@ -151,13 +153,14 @@ export default function CreatePost() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      {/* header / title (subtle) */}
+      <Toaster position="top-right" />
+      {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <div className="text-sm font-medium text-gray-700">Create a post</div>
+        <div className="text-sm font-semibold text-gray-700">Create a Post</div>
         <div className="text-xs text-gray-400">Tip: Ctrl + Enter to post</div>
       </div>
 
-      {/* textarea */}
+      {/* Textarea */}
       <div className="relative">
         <textarea
           value={text}
@@ -166,22 +169,18 @@ export default function CreatePost() {
           placeholder="Share something with your medical peers..."
           rows={text ? 4 : 2}
           className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-          aria-label="Create post text"
         />
-        {/* emoji anchor */}
         <div className="absolute right-3 bottom-3 flex items-center gap-2">
           <button
             onClick={() => setShowEmoji((s) => !s)}
-            aria-label="Emoji picker"
-            className="flex items-center gap-2 text-gray-500 hover:text-yellow-500 p-1 rounded-md"
-            title="Add emoji"
+            className="text-gray-500 hover:text-yellow-500 transition"
           >
-            <Smile size={18} />
+            <Smile size={20} />
           </button>
         </div>
       </div>
 
-      {/* emoji picker positioned using a relative container */}
+      {/* Emoji Picker */}
       <div ref={pickerRef} className="relative">
         <AnimatePresence>
           {showEmoji && (
@@ -198,7 +197,7 @@ export default function CreatePost() {
         </AnimatePresence>
       </div>
 
-      {/* media previews */}
+      {/* Media Previews */}
       <AnimatePresence>
         {media.length > 0 && (
           <motion.div
@@ -212,9 +211,6 @@ export default function CreatePost() {
               <motion.div
                 key={m.url}
                 layout
-                initial={{ scale: 0.98, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.98, opacity: 0 }}
                 className="relative rounded-lg overflow-hidden bg-gray-50"
               >
                 {m.type === "video" ? (
@@ -235,8 +231,7 @@ export default function CreatePost() {
 
                 <button
                   onClick={() => removeMediaAt(idx)}
-                  className="absolute top-2 right-2 p-1 rounded-full bg-black/50 text-white opacity-90 hover:bg-black/70 transition"
-                  aria-label={`Remove media ${idx + 1}`}
+                  className="absolute top-2 right-2 p-1 rounded-full bg-black/50 text-white hover:bg-black/70 transition"
                 >
                   <X size={14} />
                 </button>
@@ -246,14 +241,12 @@ export default function CreatePost() {
         )}
       </AnimatePresence>
 
-      {/* actions */}
+      {/* Bottom Actions */}
       <div className="flex items-center justify-between gap-4 mt-4">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => fileInputRef.current && fileInputRef.current.click()}
+            onClick={() => fileInputRef.current.click()}
             className="flex items-center gap-2 text-sm text-gray-600 hover:text-blue-600 transition"
-            type="button"
-            aria-label="Upload images"
           >
             <Image size={16} /> Photo
           </button>
@@ -267,12 +260,8 @@ export default function CreatePost() {
           />
 
           <button
-            onClick={() =>
-              videoInputRef.current && videoInputRef.current.click()
-            }
+            onClick={() => videoInputRef.current.click()}
             className="flex items-center gap-2 text-sm text-gray-600 hover:text-purple-600 transition"
-            type="button"
-            aria-label="Upload videos"
           >
             <Video size={16} /> Video
           </button>
@@ -289,8 +278,6 @@ export default function CreatePost() {
               setText((prev) => prev + "\n📄 Sharing a medical article...")
             }
             className="flex items-center gap-2 text-sm text-gray-600 hover:text-green-600 transition"
-            type="button"
-            aria-label="Add article text"
           >
             <FileText size={16} /> Article
           </button>
@@ -305,7 +292,6 @@ export default function CreatePost() {
                 ? "bg-blue-600 hover:bg-blue-700"
                 : "bg-gray-300 cursor-not-allowed"
             }`}
-            aria-disabled={!text.trim() && media.length === 0}
           >
             <UploadCloud size={16} />
             {postSuccess ? (
@@ -317,7 +303,6 @@ export default function CreatePost() {
             )}
           </button>
 
-          {/* ripple */}
           <AnimatePresence>
             {postSuccess && (
               <motion.span
@@ -333,7 +318,7 @@ export default function CreatePost() {
       </div>
 
       <p className="text-xs text-gray-400 text-center mt-3">
-        Drag & drop images/videos here or press{" "}
+        Drag & drop media or press{" "}
         <kbd className="px-1 py-0.5 bg-gray-100 rounded">Ctrl</kbd> +
         <kbd className="px-1 py-0.5 bg-gray-100 rounded">Enter</kbd> to post
       </p>
