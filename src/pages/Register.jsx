@@ -189,7 +189,7 @@ export default function Register() {
     if (uploadId?.file) data.append("uploadId", uploadId.file);
 
     try {
-      await axios.post("http://localhost:5000/api/auth/register", data, {
+      await axios.post("https://medlinkbackend-ipoc.onrender.com/api/auth/register", data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
