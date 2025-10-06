@@ -34,7 +34,7 @@ const posts = [
     time: "5h ago",
     text: "Exploring precision and accuracy with robotic-assisted neurosurgery 🤖🧠. Technology continues to redefine how we approach brain tumor resections. Here’s a short clip from today’s case simulation.",
     media: [
-      "https://www.youtube.com/watch?v=m6Qp2Rr6IR4",
+      "https://static.vecteezy.com/system/resources/previews/021/865/988/mp4/male-doctor-talking-to-his-online-patient-listens-to-his-patient-s-complaints-male-doctor-listening-to-patient-in-examination-room-treatment-process-doctor-supervision-video.mp4",
     ],
   },
   {
@@ -54,7 +54,7 @@ const posts = [
     time: "8h ago",
     text: "Incredible before-after results using the new diode laser for acne scar reduction ✨. Each case takes patience, science, and consistency — and the results are truly rewarding! 💆‍♀️",
     media: [
-      "https://www.youtube.com/watch?v=m6Qp2Rr6IR4",
+      "https://static.vecteezy.com/system/resources/previews/021/865/988/mp4/male-doctor-talking-to-his-online-patient-listens-to-his-patient-s-complaints-male-doctor-listening-to-patient-in-examination-room-treatment-process-doctor-supervision-video.mp4",
       "https://images.pexels.com/photos/3762881/pexels-photo-3762881.jpeg",
     ],
   },
