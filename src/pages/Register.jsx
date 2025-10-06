@@ -238,7 +238,7 @@ export default function Register() {
             </div>
             <div>
               <h2 className="text-2xl font-bold text-gray-800">
-                MediLink Registration
+                Medlink Registration
               </h2>
               <p className="text-xs text-gray-500">
                 Verified signup for doctors, students & staff
