@@ -31,7 +31,7 @@ export default function Login() {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        "https://medlinkbackend-ipoc.onrender.com/api/auth/login",
         formData
       );
       localStorage.setItem("token", res.data.token);
@@ -54,7 +54,7 @@ export default function Login() {
       const result = await signInWithPopup(auth, googleProvider);
       const token = await getIdToken(result.user);
       const res = await axios.post(
-        "http://localhost:5000/api/auth/firebase-login",
+        "https://medlinkbackend-ipoc.onrender.com/api/auth/firebase-login",
         {
           token,
           provider: "google",
@@ -77,7 +77,7 @@ export default function Login() {
       const result = await signInWithPopup(auth, appleProvider);
       const token = await getIdToken(result.user);
       const res = await axios.post(
-        "http://localhost:5000/api/auth/firebase-login",
+        "https://medlinkbackend-ipoc.onrender.com/api/auth/firebase-login",
         {
           token,
           provider: "apple",
